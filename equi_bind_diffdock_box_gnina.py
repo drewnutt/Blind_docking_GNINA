@@ -2,7 +2,7 @@ import os
 import json
 import csv
 import glob
-from rmsdfn import rmsd, fast_rmsd, get_coor_from_sdf
+from rmsdfn import rmsd, fast_rmsd, get_coor_from_sdf, accurate_rmsd
 
 from argparse import FileType, ArgumentParser
 parser = ArgumentParser()
@@ -39,7 +39,7 @@ os.system("mkdir "+output_path)
 
 out_csv = os.path.join(args.results_path, "rmsd_results_{}_{}_diffdock_box_pdbqt_vina_seed{}.csv".format(mode,sf,seed))
 with open(out_csv,"w") as f:
-    f.write("pdb,rmsd\n")
+    f.write("pdb,rmsd,accurate_rmsd\n")
     
 configs = sorted(glob.glob(os.path.join(args.diffdock_result_path,"*/rank1.sdf")),reverse=True)
 
@@ -90,6 +90,7 @@ for config in configs:
             out_f.write(pdb+",999\n")
         continue
     rmsd_ = fast_rmsd(ligand, os.path.join(output_path, pdb+"_ligand_out.pdbqt"))
+    acc_rmsd_ = accurate_rmsd(os.path.join(output_path, pdb+"_ligand_out.pdbqt"), ligand)[0]
     with open(out_csv, "a") as out_f:
-        out_f.write(pdb+','+str(rmsd_)+"\n")
+        out_f.write(pdb+','+str(rmsd_)+','+str(acc_rmsd_)+"\n")
         

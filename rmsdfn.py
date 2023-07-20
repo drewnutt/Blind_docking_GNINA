@@ -1,4 +1,5 @@
 from biopandas.pdb import PandasPdb
+from plumbum import obrms
 import pandas as pd
 import numpy as np
 import warnings
@@ -152,6 +153,21 @@ def fast_rmsd(ligfile1: str, ligfile2: str) -> float:
     coor_lig2 = get_coor_from_pdbqt(ligfile2)
     # print(coor_lig2)
     return _calc_rmsd(coor_lig1, coor_lig2)
+
+def accurate_rmsd(ligfile1: str, ligfile2: str) -> float:
+    '''
+    Calculate the RMSD between two ligands with a symmetry-correcting algorithm 
+
+    Args:
+      ligfile1 (str): the pdb file of the first ligand
+      ligfile2 (str): the pdb file of the second ligand
+    
+    Returns:
+      The RMSD value.
+    '''
+    raw_rmsd = obrms[ligfile1, ligfile2]()
+    rmsd_values = [float(rmsd_line.strip()) for rmsd_line in raw_rmsd.split()]
+    return rmsd_values
 
 def fast_rmsd_sdf(ligfile1: str, ligfile2: str):
     '''
