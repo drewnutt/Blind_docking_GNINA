@@ -1,5 +1,5 @@
 from biopandas.pdb import PandasPdb
-from plumbum import obrms
+from plumbum.cmd import obrms
 import pandas as pd
 import numpy as np
 import warnings
