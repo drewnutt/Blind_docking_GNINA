@@ -154,19 +154,39 @@ def fast_rmsd(ligfile1: str, ligfile2: str) -> float:
     # print(coor_lig2)
     return _calc_rmsd(coor_lig1, coor_lig2)
 
+def rmsd_diffdock(diffdock_file: str, ligfile: str) -> float:
+    '''
+    Calculate the RMSD between two ligands.
+    
+    Args:
+      ligfile1 (str): the sdf file of diffdocks output
+      ligfile2 (str): the pdb file of the groundtruth
+    
+    Returns:
+      The RMSD value.
+    '''
+    coor_lig1, atomnum = get_coor_from_sdf(diffdock_file)
+    # print(coor_lig1)
+    coor_lig2 = get_coor_from_pdbqt(ligfile)
+    # print(coor_lig2)
+    return _calc_rmsd(coor_lig1, coor_lig2)
+
+
 def accurate_rmsd(ligfile1: str, ligfile2: str) -> float:
     '''
     Calculate the RMSD between two ligands with a symmetry-correcting algorithm 
 
     Args:
-      ligfile1 (str): the pdb file of the first ligand
-      ligfile2 (str): the pdb file of the second ligand
+      ligfile1 (str): the file of the first ligand (this one can have multiple poses)
+      ligfile2 (str): the file of the second ligand
     
     Returns:
       The RMSD value.
     '''
     raw_rmsd = obrms[ligfile1, ligfile2]()
-    rmsd_values = [float(rmsd_line.strip()) for rmsd_line in raw_rmsd.split()]
+    rmsd_table = pd.DataFrame([x.split() for x in raw_rmsd.strip().split('\n')])
+    rmsd_values = rmsd_table.iloc[:,-1].values
+    rmsd_values = [float(rmsd_val.strip()) for rmsd_val in rmsd_values]
     return rmsd_values
 
 def fast_rmsd_sdf(ligfile1: str, ligfile2: str):
